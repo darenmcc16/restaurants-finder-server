@@ -9,8 +9,14 @@ const jsonParser = express.json()
 //filter out the response to avoid showing broken data
 const serializeFavorite = favorite => ({
     id: favorite.id,
-    title: xss(favorite.title),
-    completed: favorite.completed
+    user_id: favorite.user_id,
+    yelp_id: xss(favorite.yelp_id),
+    name: xss(favorite.name),
+    phone: favorite.phone,
+    url: xss(favorite.url),
+    price: xss(favorite.price),
+    rating: xss(favorite.rating),
+    visited: favorite.visited
 })
 
 favoriteRouter
@@ -31,12 +37,24 @@ favoriteRouter
 
         //take the input from the user
         const {
-            title,
-            completed = false
+            user_id,
+            yelp_id,
+            name,
+            phone,
+            url,
+            price,
+            rating,
+            visited
         } = req.body
         const newFavorite = {
-            title,
-            completed
+            user_id,
+            yelp_id,
+            name,
+            phone,
+            url,
+            price,
+            rating,
+            visited
         }
 
         //validate the input
@@ -58,7 +76,7 @@ favoriteRouter
             )
             .then(favorite => {
                 res
-                //display the 201 status code
+                    //display the 201 status code
                     .status(201)
                     //redirect the request to the original url adding the favorite id for editing
                     .location(path.posix.join(req.originalUrl, `/${favorite.id}`))
@@ -110,12 +128,24 @@ favoriteRouter
 
         //take the input from the user
         const {
-            title,
-            completed
+            user_id,
+            yelp_id,
+            name,
+            phone,
+            url,
+            price,
+            rating,
+            visited
         } = req.body
         const favoriteToUpdate = {
-            title,
-            completed
+            user_id,
+            yelp_id,
+            name,
+            phone,
+            url,
+            price,
+            rating,
+            visited
         }
 
         //validate the input by checking the length of the favoriteToUpdate object to make sure that we have all the values
@@ -154,6 +184,45 @@ favoriteRouter
                 res.status(204).json(numRowsAffected).end()
             })
             .catch(next)
+    })
+
+
+
+favoriteRouter
+    .route('/users/:user_id')
+    .all((req, res, next) => {
+        if (isNaN(parseInt(req.params.user_id))) {
+            //if there is an error show it
+            return res.status(404).json({
+                error: {
+                    message: `Invalid id`
+                }
+            })
+        }
+
+        //connect to the service to get the data
+        favoriteService.getFavoriteByUserId(
+                req.app.get('db'),
+                req.params.user_id
+            )
+            .then(favorite => {
+                if (!favorite) {
+                    //if there is an error show it
+                    return res.status(404).json({
+                        error: {
+                            message: `favorite doesn't exist`
+                        }
+                    })
+                }
+                res.favorite = favorite
+                next()
+            })
+            .catch(next)
+    })
+    .get((req, res, next) => {
+
+        //map the results to get each one of the objects and serialize them
+        res.json(res.favorite.map(serializeFavorite))
     })
 
 

@@ -1,33 +1,39 @@
-const PancakeService = {
+const favoriteService = {
     //relevant
-    getPancakes(db) {
+    getFavorites(db) {
         return db
             .select('*')
-            .from('pancake')
+            .from('favorites')
     },
-    getPancakeById(db, pancake_id) {
+    getFavoriteById(db, favorite_id) {
         return db
             .select('*')
-            .from('pancake')
-            .where('pancake.id', pancake_id)
+            .from('favorites')
+            .where('favorites.id', favorite_id)
             .first()
     },
-    //relevant
-    insertPancake(db, newPancake) {
+    getFavoriteByUserId(db, user_id) {
         return db
-            .insert(newPancake)
-            .into('pancake')
+            .select('*')
+            .from('favorites')
+            .where('favorites.user_id', user_id)
+    },
+    //relevant
+    insertFavorite(db, newFavorite) {
+        return db
+            .insert(newFavorite)
+            .into('favorites')
             .returning('*')
             .then(rows => {
                 return rows[0]
             })
     },
     //relevant
-    updatePancake(db, pancake_id, newPancake) {
-        return db('pancake')
-            .update(newPancake, returning = true)
+    updateFavorite(db, favorite_id, newFavorite) {
+        return db('favorites')
+            .update(newFavorite, returning = true)
             .where({
-                id: pancake_id
+                id: favorite_id
             })
             .returning('*')
             .then(rows => {
@@ -35,13 +41,13 @@ const PancakeService = {
             })
     },
     //relevant
-    deletePancake(db, pancake_id) {
-        return db('pancake')
+    deleteFavorite(db, favorite_id) {
+        return db('favorites')
             .delete()
             .where({
-                'id': pancake_id
+                'id': favorite_id
             })
     }
 }
 
-module.exports = PancakeService
+module.exports = favoriteService

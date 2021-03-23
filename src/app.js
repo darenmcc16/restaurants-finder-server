@@ -1,5 +1,5 @@
 require("dotenv").config()
-let bodyParser = require("body-parser")
+const bodyParser = require("body-parser")
 const express = require("express")
 const morgan = require("morgan")
 const cors = require("cors")
@@ -9,7 +9,7 @@ const helmet = require("helmet")
 
 //equivalent of fetch in node
 const unirest = require("unirest");
-const bodyParser = require("body-parser")
+
 
 //helping unirest to make secure or unsecure connection
 const https = require("https");
@@ -20,6 +20,7 @@ const events = require("events");
 const { NODE_ENV, apiKey } = require("./config");
 const errorHandler = require('./middleware/error-handler')
 const pancakeRouter = require('./pancake/pancake-router')
+const favoriteRouter = require('./favorites/favorites-router')
 const authRouter = require("./auth/auth-router");
 const usersRouter = require("./users/users-router");
 
@@ -99,6 +100,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
 
 app.use('/api/pancakes', pancakeRouter)
+app.use('/api/favorites', favoriteRouter)
 app.use(errorHandler)
 
 module.exports = app
